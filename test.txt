@@ -1,0 +1,3 @@
+to jest testowy plik
+
+tutaj jest testowa zawartość
