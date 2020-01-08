@@ -12,6 +12,7 @@ class HttpResponse
 
 public:
 	void setStatusCode(int code);
+	void addHeader(std::string key, int value);
 	void addHeader(std::string key, std::string value);
 
 	std::string getHead() const;

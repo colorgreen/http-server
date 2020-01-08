@@ -16,10 +16,12 @@ HttpServer::HttpServer(Socket& s) : socket(&s), publicdir("public/")
 {
 	time_t t;
     time( & t );
+	string date(asctime( localtime( &t ) ));
+	date.pop_back();
 
 	response.version = "1.1";
 	response.setStatusCode(500);
-	response.addHeader("Date", asctime( localtime( &t ) ) );
+	response.addHeader("Date", date );
 	response.addHeader("Server", "Prosty server HTTP, Projekt na sieci");
 
 	string data;
@@ -56,7 +58,7 @@ HttpServer::~HttpServer(){
 
 void HttpServer::parseMethod(const std::string& data)
 {
-	regex r("^(GET|HEAD|POST|PUT|DELETE|PATCH)");
+	regex r("^(GET|HEAD|PUT|DELETE)");
 	smatch m;
 	if (!regex_search(data, m, r))
 		throw HttpException(500,"Could not parse method");
@@ -143,6 +145,11 @@ void HttpServer::handleGET(const std::string& data)
 	if( !infile )
 		throw HttpException(404, string(path + " not found").c_str() );
 	
+	infile.seekg(0, ios::end);
+	response.addHeader("Content-Length", infile.tellg());
+
+	infile.seekg(0, ios::beg);
+
 	response.setStatusCode(200);
 	sendResponseHead();
 
