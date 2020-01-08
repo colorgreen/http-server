@@ -11,5 +11,5 @@ make
 ```
 
 # Author
-Korneliusz Szymanski
+Korneliusz Szymaski
 Jan Kozowski
