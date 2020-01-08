@@ -12,12 +12,12 @@
 
 int Socket::send(const char* data, int length)
 {
-	return ::send(fd, data, length, NULL);
+	return ::send(fd, data, length, 0);
 }
 
 int Socket::recv(char* data, int length)
 {
-	return ::recv(fd, data, length, NULL);
+	return ::recv(fd, data, length, 0);
 }
 
 void Socket::close(){

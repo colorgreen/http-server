@@ -5,6 +5,7 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <ctime>
 
 #include "Socket.h"
 #include "HttpException.h"
@@ -13,9 +14,12 @@ using namespace std;
 
 HttpServer::HttpServer(Socket& s) : socket(&s), publicdir("public/")
 {
+	time_t t;
+    time( & t );
+
 	response.version = "1.1";
 	response.setStatusCode(500);
-	response.addHeader("Date", currentDate());
+	response.addHeader("Date", asctime( localtime( &t ) ) );
 	response.addHeader("Server", "Prosty server HTTP, Projekt na sieci");
 
 	string data;
