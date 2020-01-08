@@ -11,6 +11,9 @@
 #include <string.h>
 #include <time.h>
 #include <pthread.h>
+#include "Socket.h"
+#include "HttpServer.h"
+#include "HttpException.h"
 
 #define SERVER_PORT 80
 #define QUEUE_SIZE 5
@@ -30,18 +33,29 @@ void *ThreadBehavior(void *t_data)
     //dostęp do pól struktury: (*th_data).pole
     //TODO (przy zadaniu 1) klawiatura -> wysyłanie albo odbieranie -> wyświetlanie
 
-	char buffor[BUFFSIZE] = {0};
+	//char buffor[BUFFSIZE] = {0};
 
-	read(data->socket, buffor, BUFFSIZE);
-	printf("%s\n", buffor );
+	//read(data->socket, buffor, BUFFSIZE);
+	//printf("%s\n", buffor );
+
+	try
+	{
+		Socket s(data->socket);
+		HttpServer server(s);
+	}
+	catch( HttpException & exception )
+	{
+		std::string response = exception.toResponse();
+		int iSendResult = send(data->socket, response.c_str(), response.size(), NULL);
+	}
 
 	printf("Wysylam odpowiedz\n");
 	
-char response[] = "HTTP/1.1 200 OK\n"
-"Content-Type: text/html; charset=utf-8\n"				
-"\r\ncoklwiek"	;
-	write(data->socket, response, strlen(response));
-	close(data->socket);
+//char response[] = "HTTP/1.1 200 OK\n"
+//"Content-Type: text/html; charset=utf-8\n"				
+//"\r\ncoklwiek"	;
+//	write(data->socket, response, strlen(response));
+//	close(data->socket);
 printf("Zamykam polaczenie\n");
 
 	delete data;
