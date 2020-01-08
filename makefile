@@ -1,10 +1,20 @@
-CC=g++
-CFLAGS=-lpthread
-DEPS = Socket.h HttpException.h  HttpResponse.h  HttpServer.h
-OBJ = Socket.o HttpException.o HttpResponse.o HttpServer.o threadedServer.cpp
+SRC_DIR := ./src
+OBJ_DIR := ./obj
+SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
+OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
+LDFLAGS := -lpthread
+CPPFLAGS := 
+CXXFLAGS := 
 
-%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+main: dir $(OBJ_FILES)
+	g++ $(LDFLAGS) -o ./build/server $(OBJ_FILES)
 
-server: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS)
+dir:
+	mkdir -p obj
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	g++ $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
+
+clean:
+	rm -f $(OBJ_FILES)
+	rm -f ./build/server
