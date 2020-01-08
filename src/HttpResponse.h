@@ -11,6 +11,7 @@ class HttpResponse
 	std::map<std::string, std::string> headers;
 
 public:
+	void setStatusCode(int code);
 	void addHeader(std::string key, std::string value);
 
 	std::string getHead() const;

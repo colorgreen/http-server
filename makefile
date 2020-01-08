@@ -7,7 +7,7 @@ CPPFLAGS :=
 CXXFLAGS := 
 
 main: dir $(OBJ_FILES)
-	g++ $(LDFLAGS) -o ./build/server $(OBJ_FILES)
+	g++ $(LDFLAGS) -o ./server $(OBJ_FILES)
 
 dir:
 	mkdir -p obj
@@ -17,4 +17,4 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 clean:
 	rm -f $(OBJ_FILES)
-	rm -f ./build/server
+	rm -f ./server

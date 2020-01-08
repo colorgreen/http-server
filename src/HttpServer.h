@@ -21,6 +21,7 @@ private:
 	Socket * socket;
 	HttpResponse response;
 	
+	std::string publicdir;
 	std::string version;
 	std::string url;
 	std::string	method;
@@ -34,8 +35,9 @@ private:
 	void parseVersion(const std::string& data);
 	void parseData(std::string& data);
 	
-	void setStatusCode(int statusCode);
 	void sendResponseHead() const;
 	void handleGET(const std::string& cs);
+
+	std::string currentDate();
 };
 

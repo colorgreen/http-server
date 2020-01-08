@@ -7,8 +7,11 @@ make
 # Running server
 
 ```
-./build/server
+./server
 ```
+
+Default directory of public webserver files is `./public`.
+
 
 # Author
 Korneliusz Szymaski

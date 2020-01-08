@@ -2,6 +2,11 @@
 #include <string>
 #include <sstream>
 
+void HttpResponse::setStatusCode(int code)
+{
+	this->statusCode = code;
+}
+
 void HttpResponse::addHeader(std::string key, std::string value)
 {
 	headers[key] = value;
