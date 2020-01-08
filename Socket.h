@@ -9,4 +9,6 @@ public:
 	int send(const char* data, int length);
 
 	int recv(char* data, int length);
+
+	void close();
 };

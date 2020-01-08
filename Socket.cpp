@@ -19,3 +19,7 @@ int Socket::recv(char* data, int length)
 {
 	return ::recv(fd, data, length, NULL);
 }
+
+void Socket::close(){
+	::close(fd);
+}

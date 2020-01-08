@@ -15,7 +15,7 @@
 #include "HttpServer.h"
 #include "HttpException.h"
 
-#define SERVER_PORT 80
+#define SERVER_PORT 8080
 #define QUEUE_SIZE 5
 #define BUFFSIZE 2048
 
@@ -33,21 +33,8 @@ void *ThreadBehavior(void *t_data)
     //dostęp do pól struktury: (*th_data).pole
     //TODO (przy zadaniu 1) klawiatura -> wysyłanie albo odbieranie -> wyświetlanie
 
-	//char buffor[BUFFSIZE] = {0};
-
-	//read(data->socket, buffor, BUFFSIZE);
-	//printf("%s\n", buffor );
-
-	try
-	{
-		Socket s(data->socket);
-		HttpServer server(s);
-	}
-	catch( HttpException & exception )
-	{
-		std::string response = exception.toResponse();
-		int iSendResult = send(data->socket, response.c_str(), response.size(), NULL);
-	}
+	Socket s(data->socket);
+	HttpServer server(s);
 
 	printf("Wysylam odpowiedz\n");
 	

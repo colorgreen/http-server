@@ -11,6 +11,7 @@ class HttpServer
 public:
 
 	HttpServer(Socket& socket);
+	~HttpServer();
 	
 	// enum Method { Get, Post, Put, Delete, Patch, Head };
 

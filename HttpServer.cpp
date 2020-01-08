@@ -7,6 +7,10 @@
 
 using namespace std;
 
+HttpServer::~HttpServer(){
+	socket->close();
+}
+
 void HttpServer::parseMethod(const std::string& data)
 {
 	regex r("^(GET|HEAD|POST|PUT|DELETE|PATCH)");
@@ -19,7 +23,7 @@ void HttpServer::parseMethod(const std::string& data)
 
 void HttpServer::parseUrl(const std::string& data)
 {
-	regex r("^[A-Z]+ (.+) ");
+	regex r("^[A-Z]+ /(.+) ");
 	smatch m;
 	if (!regex_search(data, m, r))
 		throw HttpException(500, "Could not parse url");
@@ -48,12 +52,21 @@ void HttpServer::parseData(std::string & data)
 	parseUrl(data);
 	parseVersion(data);
 
+	response.addHeader("User-Agent", "Prosty server HTTP, Projekt na sieci");
+
 	printf("Handling method %s\n", method.c_str() );
 
-	if (method == "GET")
-		handleGET(data);
-
-	setStatusCode(201);
+	try
+	{
+		if (method == "GET")
+			handleGET(data);
+	}
+	catch( HttpException & exception )
+	{
+		std::string response = exception.toResponse();
+		printf("Exception %d\n%s\n", exception.getStatusCode(), response.c_str() );
+		int iSendResult = socket->send(response.c_str(), response.size());
+	}	
 }
 
 HttpServer::HttpServer(Socket& s)
@@ -102,16 +115,23 @@ void HttpServer::setStatusCode(int statusCode)
 void HttpServer::sendResponseHead() const
 {
 	string s = response.getHead();
+	printf("Sending response: \n%s\n", s.c_str() );
 	socket->send(s.c_str(), s.size());
 }
 
 void HttpServer::handleGET(const std::string& data)
 {	
+	if( url == "" ){
+		url = "index.html";
+	}
+
 	std::ifstream infile(url);
+	printf("Url: %s\n", url.c_str());
 
 	if( !infile )
 		throw HttpException(404, "File not found");
-
+	
+	setStatusCode(200);
 	sendResponseHead();
 
 	std::string line;
