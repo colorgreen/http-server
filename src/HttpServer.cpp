@@ -139,7 +139,7 @@ void HttpServer::handleGET(const std::string& data)
 
 	string path = publicdir+url;
 
-	std::ifstream infile(path);
+	std::ifstream infile(path, ios::in | ios::binary);
 	printf("Url: %s\n", url.c_str());
 
 	if( !infile )
@@ -147,15 +147,51 @@ void HttpServer::handleGET(const std::string& data)
 	
 	infile.seekg(0, ios::end);
 	response.addHeader("Content-Length", infile.tellg());
-
 	infile.seekg(0, ios::beg);
 
+	handleContentType(getExtension(path));
+
+	
 	response.setStatusCode(200);
 	sendResponseHead();
 
-	std::string line;
-	while (std::getline(infile, line))
-		socket->send(line.c_str(), line.size());
+	const int S = 2048;
+	char buff[S] = {0};
+  
+  while(!infile.eof()){
+    infile.read(buff, S);
+    socket->send(buff, infile.gcount());
+  }
+}
+
+std::string HttpServer::getExtension(std::string filename)
+{
+  regex r("\\.(.*)$");
+  smatch m;
+  if (!regex_search(filename, m, r))
+    throw HttpException(500,"Could not find file extension");
+  
+  return m[1];
+}
+
+void HttpServer::handleContentType(const std::string& extenstion)
+{
+  if( extenstion == "txt" || extenstion == "TXT" )
+    response.addHeader("Content-Type", "text/plain");
+  if( extenstion == "json" || extenstion == "JSON" )
+    response.addHeader("Content-Type", "application/json");
+  if( extenstion == "html" || extenstion == "HTML" )
+    response.addHeader("Content-Type", "text/html");
+  if( extenstion == "php" || extenstion == "PHP" )
+    response.addHeader("Content-Type", "text/html");
+  if( extenstion == "jpg" || extenstion == "JPG" )
+    response.addHeader("Content-Type", "image/jpeg");
+  if( extenstion == "png" || extenstion == "PNG" )
+    response.addHeader("Content-Type", "image/png");
+  if( extenstion == "ttf" || extenstion == "TTF" )
+    response.addHeader("Content-Type", "font/ttf");
+  if( extenstion == "mp4" || extenstion == "MP4" )
+    response.addHeader("Content-Type", "video/mp4");
 }
 
 std::string HttpServer::currentDate() {

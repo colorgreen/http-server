@@ -35,7 +35,10 @@ private:
 	void parseVersion(const std::string& data);
 	void parseData(std::string& data);
 	
+	std::string getExtension(std::string filename);
+	
 	void sendResponseHead() const;
+	void handleContentType(const std::string& extension);
 	void handleGET(const std::string& cs);
 
 	std::string currentDate();
