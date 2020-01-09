@@ -92,7 +92,17 @@ void HttpServer::parseVersion(const std::string& data)
 		throw HttpException(505, "Protocol version is not supported");
 }
 
-void HttpServer::parseData(std::string & data)
+void HttpServer::parseHeaders(const std::string& data)
+{
+  regex r("^.*\\n(.*)(\\r\\n|\\n)");
+  smatch m;
+  regex_search(data, m, r);
+
+  string s = m[1];
+  printf("HEADERS\n%s\n==========", s.c_str());
+}
+
+void HttpServer::parseData(const std::string& data)
 {
 	try
 	{
@@ -101,11 +111,16 @@ void HttpServer::parseData(std::string & data)
 		parseMethod(data);
 		parseUrl(data);
 		parseVersion(data);
+		parseHeaders(data);
 
 		printf("Handling method %s\n", method.c_str() );
 
 		if (method == "GET")
-			handleGET(data);
+			handleGETHEAD(data);
+		if (method == "HEAD")
+		  handleGETHEAD(data, false);
+		else
+		  throw HttpException(405, "Method not allowed");
 	}
 	catch( HttpException & exception )
 	{
@@ -131,13 +146,13 @@ void HttpServer::sendResponseHead() const
 	socket->send(s.c_str(), s.size());
 }
 
-void HttpServer::handleGET(const std::string& data)
+void HttpServer::handleGETHEAD(const std::string& data, bool body)
 {	
 	if( url == "" ){
 		url = "index.html";
 	}
 
-	string path = publicdir+url;
+	string path = publicdir + url;
 
 	std::ifstream infile(path, ios::in | ios::binary);
 	printf("Url: %s\n", url.c_str());
@@ -151,10 +166,12 @@ void HttpServer::handleGET(const std::string& data)
 
 	handleContentType(getExtension(path));
 
-	
+	/////////////////
 	response.setStatusCode(200);
 	sendResponseHead();
 
+	if(!body) return;
+	
 	const int S = 2048;
 	char buff[S] = {0};
   

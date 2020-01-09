@@ -13,8 +13,6 @@ public:
 	HttpServer(Socket& socket);
 	~HttpServer();
 	
-	// enum Method { Get, Post, Put, Delete, Patch, Head };
-
 	HttpResponse getResponse() const;
 	
 private:
@@ -33,13 +31,14 @@ private:
 	void parseMethod(const std::string& data);
 	void parseUrl(const std::string& data);
 	void parseVersion(const std::string& data);
-	void parseData(std::string& data);
+	void parseData(const std::string& data);
+	void parseHeaders(const std::string& data);
 	
 	std::string getExtension(std::string filename);
 	
 	void sendResponseHead() const;
 	void handleContentType(const std::string& extension);
-	void handleGET(const std::string& cs);
+	void handleGETHEAD(const std::string& cs, bool body = true);
 
 	std::string currentDate();
 };
