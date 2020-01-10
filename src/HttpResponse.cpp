@@ -23,7 +23,7 @@ std::string HttpResponse::getHead() const
 {
 	std::stringstream ss;
 
-	ss << "HTTP/" << version << " " << statusCode << " "<<codeDescrtiptions[statusCode]<<"\n";
+	ss << "HTTP/" << version << " " << statusCode << " "<<codeDescrtiptions.at(statusCode)<<"\n";
 
 	for (auto h : headers)
 		ss << h.first << ": " << h.second << "\n";
