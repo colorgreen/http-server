@@ -49,12 +49,21 @@ HttpServer::HttpServer(Socket &s) : socket(&s), publicdir("public/") {
         rHeaders = m.str(0);
     }
 
+    printf("\nCONTENT-SIZE: %d\n", contentSize);
+
     while (sum != contentSize) {
         sum += socket->recv(buff, BUFFSIZE);
         data += buff;
+        printf("\nLENGTH OF DATA: %ld\n", data.length());
+        printf("SUM: %d\n", sum);
     }
 
+
     rBody = data.substr(rHeaders.length());
+
+    printf("\nMAXIMUM SIZE OF STRING: %ld\nDATA SIZE: %ld\n", data.max_size(), data.length());
+    printf("READ BYTES OF MESSAGE BODY: %d\n", sum);
+    printf("rBody SIZE: %ld\n\n", rBody.size());
 
     parseData(data);
 }
@@ -181,6 +190,7 @@ void HttpServer::handleGETHEAD(const std::string &data, bool body) {
 }
 
 void HttpServer::handlePUT(const std::string &data) {
+    printf("SIZE OF MESSAGE: %ld\n", rBody.length());
     if (url == "") {
         url = "index.html";
     }
