@@ -56,7 +56,7 @@ HttpServer::HttpServer(Socket &s) : socket(&s), publicdir("public/") {
 
     rBody = data.substr(headers.length());
 
-    parse
+    parseData(data);
 }
 
 HttpServer::~HttpServer() {
