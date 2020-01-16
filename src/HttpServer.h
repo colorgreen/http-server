@@ -26,7 +26,8 @@ private:
 
 	std::map<std::string, std::string> headers;
 
-	std::string body;
+	std::string rHeaders;
+	std::string rBody;
 
 	void parseMethod(const std::string& data);
 	void parseUrl(const std::string& data);
@@ -39,6 +40,7 @@ private:
 	void sendResponseHead() const;
 	void handleContentType(const std::string& extension);
 	void handleGETHEAD(const std::string& cs, bool body = true);
+	void handlePUT(const std::string& cs);
 
 	std::string currentDate();
 };
