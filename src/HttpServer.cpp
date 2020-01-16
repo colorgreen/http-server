@@ -54,7 +54,7 @@ HttpServer::HttpServer(Socket &s) : socket(&s), publicdir("public/") {
         data += buff;
     }
 
-    rBody = data.substr(headers.length());
+    rBody = data.substr(rHeaders.length());
 
     parseData(data);
 }
@@ -181,37 +181,17 @@ void HttpServer::handleGETHEAD(const std::string &data, bool body) {
 }
 
 void HttpServer::handlePUT(const std::string &data) {
-    parseMessage(data);
-
     if (url == "") {
         url = "index.html";
     }
 
     string path = publicdir + url;
 
-    std::ifstream infile(path, ios::in | ios::binary);
+    std::ofstream writefile(path, ios::out | ios::binary);
     printf("Url: %s\n", url.c_str());
 
-    if (!infile)
-        throw HttpException(404, string(path + " not found").c_str());
-
-    infile.seekg(0, ios::end);
-    response.addHeader("Content-Length", infile.tellg());
-    infile.seekg(0, ios::beg);
-
-    handleContentType(getExtension(path));
-
-    /////////////////
-    response.setStatusCode(200);
-    sendResponseHead();
-
-    const int S = 2048;
-    char buff[S] = {0};
-
-    while (!infile.eof()) {
-        infile.read(buff, S);
-        socket->send(buff, infile.gcount());
-    }
+    writefile.write(rBody.c_str(), rBody.length());
+    writefile.close();
 }
 
 
