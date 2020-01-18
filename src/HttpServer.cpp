@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+#include <sys/stat.h>
 
 #include "Socket.h"
 #include "HttpException.h"
@@ -191,12 +192,21 @@ void HttpServer::handlePUT(const std::string &data) {
     }
 
     string path = publicdir + url;
+    struct stat buffer;
+    if (stat(path.c_str(), &buffer) == 0) {
+        response.setStatusCode(204);
+    } else {
+        response.setStatusCode(201);
+    }
+
 
     std::ofstream writefile(path, ios::out | ios::binary);
     printf("Url: %s\n", url.c_str());
 
     writefile.write((char *) rBody, bodySize);
     writefile.close();
+
+    sendResponseHead();
 }
 
 void HttpServer::handleDELETE(const std::string &data) {
@@ -206,9 +216,9 @@ void HttpServer::handleDELETE(const std::string &data) {
 
     string path = publicdir + url;
 
-    if(!remove(path.c_str())){
+    if (!remove(path.c_str())) {
         response.setStatusCode(204);
-    }
+    } else response.setStatusCode(404);
     sendResponseHead();
 }
 
