@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <sstream>
 #include <ctime>
+#include <sys/stat.h>
 
 #include "Socket.h"
 #include "HttpException.h"
@@ -111,7 +112,6 @@ void HttpServer::parseHeaders(const std::string &data) {
 
 void HttpServer::parseData(const std::string &data) {
     try {
-        printf("%s\n", data.c_str());
 
         parseMethod(data);
         parseUrl(data);
@@ -126,6 +126,8 @@ void HttpServer::parseData(const std::string &data) {
             handleGETHEAD(data, false);
         if (method == "PUT")
             handlePUT(data);
+        if (method == "DELETE")
+            handleDELETE(data);
         else
             throw HttpException(405, "Method not allowed");
     }
@@ -190,12 +192,34 @@ void HttpServer::handlePUT(const std::string &data) {
     }
 
     string path = publicdir + url;
+    struct stat buffer;
+    if (stat(path.c_str(), &buffer) == 0) {
+        response.setStatusCode(204);
+    } else {
+        response.setStatusCode(201);
+    }
+
 
     std::ofstream writefile(path, ios::out | ios::binary);
     printf("Url: %s\n", url.c_str());
 
     writefile.write((char *) rBody, bodySize);
     writefile.close();
+
+    sendResponseHead();
+}
+
+void HttpServer::handleDELETE(const std::string &data) {
+    if (url == "") {
+        url = "index.html";
+    }
+
+    string path = publicdir + url;
+
+    if (!remove(path.c_str())) {
+        response.setStatusCode(204);
+    } else response.setStatusCode(404);
+    sendResponseHead();
 }
 
 

@@ -42,6 +42,7 @@ private:
     void handleContentType(const std::string& extension);
     void handleGETHEAD(const std::string& cs, bool body = true);
     void handlePUT(const std::string& cs);
+    void handleDELETE(const std::string& cs);
 
     std::string currentDate();
 };
