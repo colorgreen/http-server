@@ -11,10 +11,9 @@ class HttpServer
 public:
 
     HttpServer(Socket& socket);
-    ~HttpServer();
 
     HttpResponse getResponse() const;
-
+    void stop();
 private:
     Socket * socket;
     HttpResponse response;

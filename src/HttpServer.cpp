@@ -64,7 +64,8 @@ HttpServer::HttpServer(Socket &s) : socket(&s), publicdir("public/") {
     parseData(rHeaders);
 }
 
-HttpServer::~HttpServer() {
+void HttpServer::stop()
+{
     socket->close();
 }
 

@@ -31,8 +31,8 @@ void *ThreadBehavior(void *t_data)
 
 	Socket s(data->socket);
 	HttpServer server(s);
-
-    printf("Closing connection\n");
+    server.stop();
+    printf("Connection closed\n");
 
 	delete data;
     pthread_exit(NULL);
