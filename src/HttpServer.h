@@ -10,36 +10,39 @@ class HttpServer
 
 public:
 
-	HttpServer(Socket& socket);
-	~HttpServer();
-	
-	HttpResponse getResponse() const;
-	
+    HttpServer(Socket& socket);
+    ~HttpServer();
+
+    HttpResponse getResponse() const;
+
 private:
-	Socket * socket;
-	HttpResponse response;
-	
-	std::string publicdir;
-	std::string version;
-	std::string url;
-	std::string	method;
+    Socket * socket;
+    HttpResponse response;
 
-	std::map<std::string, std::string> headers;
+    std::string publicdir;
+    std::string version;
+    std::string url;
+    std::string	method;
 
-	std::string body;
+    std::map<std::string, std::string> headers;
 
-	void parseMethod(const std::string& data);
-	void parseUrl(const std::string& data);
-	void parseVersion(const std::string& data);
-	void parseData(const std::string& data);
-	void parseHeaders(const std::string& data);
-	
-	std::string getExtension(std::string filename);
-	
-	void sendResponseHead() const;
-	void handleContentType(const std::string& extension);
-	void handleGETHEAD(const std::string& cs, bool body = true);
+    std::string rHeaders;
+    unsigned char *rBody;
+    int bodySize;
 
-	std::string currentDate();
+    void parseMethod(const std::string& data);
+    void parseUrl(const std::string& data);
+    void parseVersion(const std::string& data);
+    void parseData(const std::string& data);
+    void parseHeaders(const std::string& data);
+
+    std::string getExtension(std::string filename);
+
+    void sendResponseHead() const;
+    void handleContentType(const std::string& extension);
+    void handleGETHEAD(const std::string& cs, bool body = true);
+    void handlePUT(const std::string& cs);
+
+    std::string currentDate();
 };
 
