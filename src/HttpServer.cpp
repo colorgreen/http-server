@@ -30,42 +30,38 @@ HttpServer::HttpServer(Socket &s) : socket(&s), publicdir("public/") {
     char buff[BUFFSIZE];
     int iResult;
     int sum = 0;
-    int contentSize;
+    string check;
 
-    iResult = socket->recv(buff, BUFFSIZE);
-    if (iResult > 0) {
-        printf("Bytes received: %d\n", iResult);
-        data += buff;
-        sum += iResult;
+    do {
+        iResult = socket->recv(buff, 1);
+        rHeaders += buff;
 
-        smatch m;
-        regex_search(data, m, regex("Content-Length:.*\\r\\n"));
+        try {
+            check = rHeaders.substr(rHeaders.length() - 4, 4);
+            if (check == "\r\n\r\n") break;
+        }
+        catch (const std::out_of_range &e) {}
+    } while (iResult > 0);
+
+    bodySize=0;
+    smatch m;
+    if(regex_search(rHeaders, m, regex("Content-Length:.*\\r\\n"))){
         string contentLength = m.str(0).c_str();
         regex_search(contentLength, m, regex("[0-9]+"));
-        contentSize = stoi(m.str(0).c_str());
+        bodySize = stoi(m.str(0).c_str());
 
-        regex_search(data, m, regex("(.*\\r\\n)+\\r\\n"));
-        sum -= m.length(0);
-        rHeaders = m.str(0);
-    }
-
-    printf("\nCONTENT-SIZE: %d\n", contentSize);
-
-    while (sum != contentSize) {
-        sum += socket->recv(buff, BUFFSIZE);
-        data += buff;
-        printf("\nLENGTH OF DATA: %ld\n", data.length());
-        printf("SUM: %d\n", sum);
+        rBody = new unsigned char[bodySize];
     }
 
 
-    rBody = data.substr(rHeaders.length());
 
-    printf("\nMAXIMUM SIZE OF STRING: %ld\nDATA SIZE: %ld\n", data.max_size(), data.length());
-    printf("READ BYTES OF MESSAGE BODY: %d\n", sum);
-    printf("rBody SIZE: %ld\n\n", rBody.size());
+    while (sum != bodySize) {
+        iResult = socket->recv(buff, BUFFSIZE);
+        memcpy(rBody + sum, buff, iResult);
+        sum += iResult;
+    }
 
-    parseData(data);
+    parseData(rHeaders);
 }
 
 HttpServer::~HttpServer() {
@@ -190,7 +186,6 @@ void HttpServer::handleGETHEAD(const std::string &data, bool body) {
 }
 
 void HttpServer::handlePUT(const std::string &data) {
-    printf("SIZE OF MESSAGE: %ld\n", rBody.length());
     if (url == "") {
         url = "index.html";
     }
@@ -200,7 +195,7 @@ void HttpServer::handlePUT(const std::string &data) {
     std::ofstream writefile(path, ios::out | ios::binary);
     printf("Url: %s\n", url.c_str());
 
-    writefile.write(rBody.c_str(), rBody.length());
+    writefile.write((char *) rBody, bodySize);
     writefile.close();
 }
 
