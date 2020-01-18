@@ -43,22 +43,21 @@ HttpServer::HttpServer(Socket &s) : socket(&s), publicdir("public/") {
         catch (const std::out_of_range &e) {}
     } while (iResult > 0);
 
-    bodySize=0;
+    bodySize = 0;
     smatch m;
-    if(regex_search(rHeaders, m, regex("Content-Length:.*\\r\\n"))){
+
+    if (regex_search(rHeaders, m, regex("Content-Length:.*\\r\\n"))) {
         string contentLength = m.str(0).c_str();
         regex_search(contentLength, m, regex("[0-9]+"));
         bodySize = stoi(m.str(0).c_str());
 
         rBody = new unsigned char[bodySize];
-    }
 
-
-
-    while (sum != bodySize) {
-        iResult = socket->recv(buff, BUFFSIZE);
-        memcpy(rBody + sum, buff, iResult);
-        sum += iResult;
+        while (sum != bodySize) {
+            iResult = socket->recv(buff, BUFFSIZE);
+            memcpy(rBody + sum, buff, iResult);
+            sum += iResult;
+        }
     }
 
     parseData(rHeaders);
