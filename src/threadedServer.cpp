@@ -28,7 +28,6 @@ void *ThreadBehavior(void *t_data)
 {
     pthread_detach(pthread_self());
     struct thread_data_t *data = (struct thread_data_t*)t_data;
-
 	Socket s(data->socket);
 	HttpServer server(s);
     server.stop();
@@ -46,7 +45,6 @@ void handleConnection(int clientSocket) {
 
 	thread_data_t * data = new thread_data_t();
 	data->socket = clientSocket;
-
     create_result = pthread_create(&thread1, NULL, ThreadBehavior, (void *)data);
     if (create_result){
        printf("Error on creating new thread: %d\n", create_result);
@@ -57,7 +55,6 @@ void handleConnection(int clientSocket) {
 int main(int argc, char* argv[])
 {
    int server_socket_descriptor;
-   int clientSocket;
    int bind_result;
    int listen_result;
    char reuse_addr_val = 1;
@@ -96,7 +93,7 @@ int main(int argc, char* argv[])
 	struct sockaddr_in sa;
 	socklen_t sa_size;
 
-       clientSocket = accept(server_socket_descriptor,  (struct sockaddr *) &sa, &sa_size);
+       int clientSocket = accept(server_socket_descriptor,  (struct sockaddr *) &sa, &sa_size);
        if (clientSocket < 0)
        {
            fprintf(stderr, "%s: Error on acceping new connection.\n", argv[0]);

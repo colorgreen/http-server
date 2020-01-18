@@ -28,10 +28,11 @@ HttpServer::HttpServer(Socket &s) : socket(&s), publicdir("public/") {
     string data;
 
     const int BUFFSIZE = 16384;
-    char buff[BUFFSIZE];
+    char buff[BUFFSIZE] = {0};
     int iResult;
     int sum = 0;
     string check;
+    rBody = nullptr;
 
     do {
         iResult = socket->recv(buff, 1);
@@ -46,13 +47,13 @@ HttpServer::HttpServer(Socket &s) : socket(&s), publicdir("public/") {
 
     bodySize = 0;
     smatch m;
-
     if (regex_search(rHeaders, m, regex("Content-Length:.*\\r\\n"))) {
         string contentLength = m.str(0).c_str();
         regex_search(contentLength, m, regex("[0-9]+"));
         bodySize = stoi(m.str(0).c_str());
 
-        rBody = new unsigned char[bodySize];
+        rBody = new unsigned char[bodySize + 1];
+        rBody[bodySize] = 0;
 
         while (sum != bodySize) {
             iResult = socket->recv(buff, BUFFSIZE);
@@ -64,8 +65,8 @@ HttpServer::HttpServer(Socket &s) : socket(&s), publicdir("public/") {
     parseData(rHeaders);
 }
 
-void HttpServer::stop()
-{
+void HttpServer::stop() {
+    delete[] rBody;
     socket->close();
 }
 
@@ -123,14 +124,14 @@ void HttpServer::parseData(const std::string &data) {
 
         if (method == "GET")
             handleGETHEAD(data);
-        if (method == "HEAD")
+        else if (method == "HEAD")
             handleGETHEAD(data, false);
-        if (method == "PUT")
+        else if (method == "PUT")
             handlePUT(data);
-        if (method == "DELETE")
+        else if (method == "DELETE")
             handleDELETE(data);
         else
-            throw HttpException(405, "Method not allowed");
+            throw HttpException(405, "Method not allowed" + method);
     }
     catch (HttpException &exception) {
         printf("EXCEPTION\n");
@@ -189,7 +190,7 @@ void HttpServer::handleGETHEAD(const std::string &data, bool body) {
 
 void HttpServer::handlePUT(const std::string &data) {
     if (url == "") {
-        url = "index.html";
+        throw HttpException(500, "Bad URL");
     }
 
     string path = publicdir + url;
@@ -199,7 +200,6 @@ void HttpServer::handlePUT(const std::string &data) {
     } else {
         response.setStatusCode(201);
     }
-
 
     std::ofstream writefile(path, ios::out | ios::binary);
     printf("Url: %s\n", url.c_str());
